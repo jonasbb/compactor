@@ -34,3 +34,11 @@ build*
 *~
 test-driver
 build
+# Generated files during compilation
+doc/
+etc/
+compactor
+inspector
+libcdns.a
+doxygen-doc/
+README.html
