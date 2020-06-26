@@ -12,6 +12,13 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "type": "shell",
+            "label": "Build Doxygen Documentation",
+            "command": "./autogen.sh && ./configure --enable-internal-doc && make doxygen-doc",
+            "problemMatcher": "$gcc",
+            "group": "build"
         }
     ]
 }
