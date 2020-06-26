@@ -25,6 +25,7 @@
 
 [dns-payload]
 # query-name
+# query-name-trim
 # query-class-type
 # rr-ttl
 # rr-rdata

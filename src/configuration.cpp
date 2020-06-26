@@ -1547,6 +1547,7 @@ HintsExcluded::HintsExcluded()
       dns_flags(false),
       query_rcode(false),
       query_name(false),
+      query_name_trim(false),
       query_class_type(false),
       query_qdcount(false), query_ancount(false), query_nscount(false), query_arcount(false),
       query_size(false),
@@ -1622,6 +1623,9 @@ HintsExcluded::HintsExcluded()
         ("dns-payload.query-name",
          po::value<bool>(&query_name)->implicit_value(true)->default_value(false),
          "exclude query NAMEs.")
+        ("dns-payload.query-name-trim",
+         po::value<bool>(&query_name_trim)->implicit_value(true)->default_value(false),
+         "trim query NAMEs.")
         ("dns-payload.query-class-type",
          po::value<bool>(&query_class_type)->implicit_value(true)->default_value(false),
          "exclude query CLASS and TYPEs.")

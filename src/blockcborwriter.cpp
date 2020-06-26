@@ -40,6 +40,26 @@ namespace {
             res[prefix_nbytes - 1] &= 0xff << (prefix_nbytes * 8 - prefix_len);
         return res;
     }
+
+    void trim_query_name(byte_string& name) {
+        int label_start_offsets[2] = {0, 0};
+        int idx = 0;
+
+        // Scan for the byte offsets of the label starts
+        while ( name[idx] != '\0' ) {
+            // Shift existing offsets by 1 eliminating oldest
+            label_start_offsets[0] = label_start_offsets[1];
+            label_start_offsets[1] = idx;
+            idx += name[idx] + 1;
+        }
+
+        // Replace all but the last two labels with '_' chars
+        idx = 0;
+        while ( idx < label_start_offsets[0] ) {
+            memset(&name[idx+1], '_', name[idx]);
+            idx += name[idx] + 1;
+        }
+    }
 }
 
 BlockCborWriter::BlockCborWriter(const Configuration& config,
@@ -165,8 +185,15 @@ void BlockCborWriter::writeBasic(const std::shared_ptr<QueryResponse>& qr,
         ct.qclass = query.query_class();
         if ( !exclude.query_class_type )
             qs.query_classtype = data_->add_classtype(ct);
-        if ( !exclude.query_name )
-            qri.qname = data_->add_name_rdata(query.dname());
+        if ( !exclude.query_name ) {
+            if ( exclude.query_name_trim ) {
+                auto tmp = byte_string(query.dname());
+                trim_query_name(tmp);
+                qri.qname = data_->add_name_rdata(tmp);
+            } else {
+                qri.qname = data_->add_name_rdata(query.dname());
+            }
+        }
     }
 
     if ( qr->has_query() )
@@ -276,8 +303,15 @@ void BlockCborWriter::writeQuestionRecord(const CaptureDNS::query& question)
     block_cbor::ClassType ct;
     block_cbor::Question q;
 
-    if ( !config_.exclude_hints.query_name )
-        q.qname = data_->add_name_rdata(question.dname());
+    if ( !config_.exclude_hints.query_name ) {
+        if ( config_.exclude_hints.query_name_trim ) {
+            auto tmp = byte_string(question.dname());
+            trim_query_name(tmp);
+            q.qname = data_->add_name_rdata(tmp);
+        } else {
+            q.qname = data_->add_name_rdata(question.dname());
+        }
+    }
     ct.qtype = question.query_type();
     ct.qclass = question.query_class();
     if ( !config_.exclude_hints.query_class_type )
@@ -299,8 +333,15 @@ void BlockCborWriter::writeResourceRecord(const CaptureDNS::resource& resource)
     block_cbor::ClassType ct;
     block_cbor::ResourceRecord rr;
 
-    if ( !config_.exclude_hints.query_name )
-        rr.name = data_->add_name_rdata(resource.dname());
+    if ( !config_.exclude_hints.query_name ) {
+        if ( config_.exclude_hints.query_name_trim ) {
+            auto tmp = byte_string(resource.dname());
+            trim_query_name(tmp);
+            rr.name = data_->add_name_rdata(tmp);
+        } else {
+            rr.name = data_->add_name_rdata(resource.dname());
+        }
+    }
     ct.qtype = resource.query_type();
     ct.qclass = resource.query_class();
     if ( !config_.exclude_hints.query_class_type )

@@ -354,6 +354,11 @@ public:
     bool query_name;
 
     /**
+     * \brief trim query name?
+     */
+    bool query_name_trim;
+
+    /**
      * \brief output query class and type?
      */
     bool query_class_type;
